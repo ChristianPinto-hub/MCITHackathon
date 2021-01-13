@@ -8,8 +8,8 @@
 **Team Members**  Use format below  
 Name | Year
 ------------ | -------------
-<person 1> | <their year>
-​
+Christian Pinto | <their year>
+Alex Hirsch
 ​
 **General Idea**  - A general description of what your software will do  
 Enter text here
