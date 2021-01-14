@@ -8,8 +8,8 @@
 **Team Members**  Use format below  
 Name | Year
 ------------ | -------------
-Christian Pinto | <their year>
-Alex Hirsch
+Christian Pinto | '22
+Alex Hirsch		| '22
 ​
 **General Idea**  - A general description of what your software will do  
 Enter text here
