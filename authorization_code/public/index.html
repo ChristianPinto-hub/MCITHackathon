@@ -364,6 +364,7 @@
               
 
               // var rec_info = new Array();
+              $('#recs').empty();
               var uriArr = new Array();
               for (var i=0; i<5; i++) {
                 uriArr.push(response.tracks[i].uri);
@@ -401,12 +402,13 @@
 
       function addButton (info, uri, i){
         $(document).ready(function() {
-          $('#recs').append('<button class="btn-styled" type="button" id="'+uri+'">'+info+'</button>');
+          $('#recs').append('<button class="btn-styled" type="button" id="rec'+i+'">'+info+'</button>');
         });
-        $('#'+uri).on("click", function() {
+        console.log('add button id: '+ $('#rec'+i).prop('id'));
+        $('#rec'+i).on("click", function() {
           addToQueue(uri);
           $('#recs').empty()});
-        console.log('add button id: '+ $('#'+uri).prop('id'));
+        console.log('add button id: '+ $('#rec'+i).prop('id'));
       }
       // onclick="addToQueue('+uri+')"
 
