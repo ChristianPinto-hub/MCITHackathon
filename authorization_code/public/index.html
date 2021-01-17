@@ -389,9 +389,12 @@
       function addButton (info, uri){
         console.log('add button id: '+ uri);
         $(document).ready(function() {
-          $('#recs').append('<button class="btn-styled" type="button" onclick="addToQueue('+uri+')">'+info+'</button>');
+          $('#recs').empty();
+          $('#recs').append('<button class="btn-styled" type="button" id="uri">'+info+'</button>');
         });
+        $(document).on("click", $('#recs'), () => addToQueue(uri));
       }
+      // onclick="addToQueue('+uri+')"
 
       function play(){
         $.ajax({
