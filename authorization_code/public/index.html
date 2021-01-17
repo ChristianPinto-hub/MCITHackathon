@@ -32,7 +32,10 @@
           <button onclick="pause()">Pause</button>
           <button onclick="next()">Next</button>
           <button onclick="getSongInfo()">Update</button>
-          <button onclick="recs()">Recommendation</button>
+          <button onclick="currRec()">Recommendation From Playing</button>
+        </div>
+        <br><br>
+        <div id="recs" class="btn-group">
         </div>
         <br><br>
         <div id="user-profile">
@@ -179,12 +182,13 @@
                   var playing = response;
                   console.log(playing);
                   // document.getElementById('currently-playing').innerHTML = '<p>Currently Playing</p> <p>Song: '+ playing.item.name;
-                  document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + playing.item.artists[0].name;
-                  for (var i=1; i<playing.item.artists.length; i++) {
-                    document.getElementById('currently-playing').innerHTML += ', ' + playing.item.artists[i].name;
-                  }
-                  document.getElementById('currently-playing').innerHTML += '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
-
+                  if (typeof playing !== "undefined") {
+                    document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + playing.item.artists[0].name;
+                    for (var i=1; i<playing.item.artists.length; i++) {
+                      document.getElementById('currently-playing').innerHTML += ', ' + playing.item.artists[i].name;
+                    }
+                    document.getElementById('currently-playing').innerHTML += '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
+                }
 
                   $('#login').hide();
                   $('#loggedin').show();
@@ -314,12 +318,37 @@
           }, false);
         }
       })();
-      function recs(){
+
+      function currRec(){
+        var playing;
+        let promise = new Promise(function(resolve, reject) {
+          resolve($.ajax({
+            url: 'https://api.spotify.com/v1/me/player/currently-playing',
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+              playing = response;
+              console.log('hit sire: '+ playing.item.id);
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+          }));
+        });
+        promise.then(result => {
+          console.log('uri:' + playing.item.id)
+          recsList(playing.item.id)
+        })
+      }
+
+      function recsList(tracks){
+        console.log('hit:' + tracks);
         var uri = '';
         let promise = new Promise(function(resolve, reject) {
           resolve($.ajax({
             url: 'https://api.spotify.com/' + 
-              'v1/recommendations?limit=1&seed_tracks=5HLes17mwCwKt81mi0Tk35',
+              'v1/recommendations?limit=5&seed_tracks='+ tracks,
             method: 'GET',
             headers: {
               'Authorization': 'Bearer ' + access_token
@@ -331,8 +360,13 @@
               console.log('Song: ' + response.tracks[0].name + '\n' +
                 'Artist: '+ response.tracks[0].artists[0].name + 
                 '\nAlbum: ' + response.tracks[0].album.artists[0].name);
-
               uri = response.tracks[0].uri;
+
+              var rec_info = 'Song: ' + response.tracks[0].name + '\n' +
+                'Artist: '+ response.tracks[0].artists[0].name + 
+                '\nAlbum: ' + response.tracks[0].album.artists[0].name;
+              addButton(rec_info, uri);
+
               $('#login').hide();
               $('#loggedin').show();
             }
@@ -341,6 +375,7 @@
         promise.then(result => addToQueue(uri));
       }
       function addToQueue(uri){
+        console.log('ATQ: '+uri)
         $.ajax({
             url: 'https://api.spotify.com/v1/me/player/queue?uri=' + uri,
             method: 'POST',
@@ -355,6 +390,12 @@
         });
       }
 
+      function addButton (info, uri){
+        console.log('add button id: '+ uri);
+        $(document).ready(function() {
+          $('#recs').append('<button class="btn-styled" type="button" onclick="addToQueue('+uri+')">'+info+'</button>');
+        });
+      }
 
       function play(){
         $.ajax({
@@ -437,12 +478,14 @@
             var playing = response;
             console.log(playing);
             // document.getElementById('currently-playing').innerHTML = '<p>Currently Playing</p> <p>Song: '+ playing.item.name;
-            var artists = playing.item.artists[0].name;
-            for (var i=1; i<playing.item.artists.length; i++) {
-              artists += ', ' + playing.item.artists[i].name;
-            }
+            if (typeof playing !== "undefined") {
+              var artists = playing.item.artists[0].name;
+              for (var i=1; i<playing.item.artists.length; i++) {
+                artists += ', ' + playing.item.artists[i].name;
+              }
 
-            document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + artists + '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
+              document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + artists + '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
+            }
 
 
             $('#login').hide();
