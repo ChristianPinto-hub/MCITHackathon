@@ -30,11 +30,18 @@
         <div id="oauth">
         </div>
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+        <br>
         <div id="playlist">
         </div>
+        <br>
         <div id="tracks-enumerated">
         </div>
         <div id="tracks">
+        </div>
+        <br>
+        <div id="recs-enumerated">
+        </div>
+        <div id="rec-tracks">
         </div>
       </div>
     </div>
@@ -176,18 +183,54 @@
                     dataType: "json",
                     success: function(response) {
                       var playlist = response;
+
+
+                      var track_list = new Array(3);
+
                        //console.log(playlist);  
                       console.log(playlist.name);
                       document.getElementById('playlist').innerHTML = 'Playlist: ' + playlist.name;
                       //console.log(playlist.tracks)
-                       document.getElementById('tracks-enumerated').innerHTML = 'Tracks: ' + '<br>';
+                      document.getElementById('tracks-enumerated').innerHTML = 'Tracks: ' + '<br>';
              
 
                       $.each(playlist.tracks.items, function(index, value) {
-                        //console.log(value.track.name);
                         var track_names = value.track.name;
+                        track_list[index] = value.track.id;
                         document.getElementById('tracks').innerHTML += value.track.name + '<br>';
-                      })                
+                      }) 
+
+                      $.ajax({
+                        type: "GET",
+                        url: 'https://api.spotify.com/v1/audio-features/' + playlist.tracks.items[0].track.id,
+                        headers: {
+                          'Authorization': 'Bearer ' + access_token
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                          var audio_features  = response;
+                          //console.log(audio_features);
+                          $.ajax({
+                            type: "GET",
+                            url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + track_list,
+                            headers: {
+                              'Authorization': 'Bearer ' + access_token
+                            },
+                            dataType: "json",
+                            success: function(response) {
+                              var recommendations = response;
+                              //console.log(recommendations);
+                              document.getElementById('recs-enumerated').innerHTML = 'Recommendations: <br>';
+                              $.each(recommendations.tracks, function(index, value) {
+                                document.getElementById('rec-tracks').innerHTML += value.name + '<br>';
+                              })
+
+                            }
+                          });
+                        }
+                      });
+
+
                     }
                   });
                   
