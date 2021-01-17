@@ -16,14 +16,15 @@
     </style>
   </head>
 
-  <body>
+  <body style="background-color:lightgrey;">>
     <div class="container">
       <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
+        <h1>Welcome to Spoti59x</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
       <div id="loggedin">
         <br><br>
+        <h1 style="background-color:chartreuse;"> Spoti59x</h1>
         <div id="currently-playing">
         </div>
         <div id = "album-image">
@@ -234,7 +235,8 @@
                     $.each(playlists.items, function(index, value) {
                       getPlaylistName(value.href, index);
                     })
-                    $('#playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
+                    document.getElementById('playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
+                    //$('#playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
                     console.log($('#playlists-desc').attr('id'));
                   } else {
                     $('#playlists').empty();
@@ -469,7 +471,7 @@
                 artists += ', ' + playing.item.artists[i].name;
               }
 
-              document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + artists + '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
+              document.getElementById('currently-playing').innerHTML = '<p><h3>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + artists + '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
             }
             $('#login').hide();
             $('#loggedin').show();
