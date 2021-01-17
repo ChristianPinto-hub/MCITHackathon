@@ -393,8 +393,9 @@
       function recsList(tracks){
         console.log('hit:' + tracks);
         var uri = '';
-        let promise = new Promise(function(resolve, reject) {
-          resolve($.ajax({
+        // let promise = new Promise(function(resolve, reject) {
+          //resolve(
+          $.ajax({
             url: 'https://api.spotify.com/' + 
               'v1/recommendations?limit=5&seed_tracks='+ tracks,
             method: 'GET',
@@ -408,19 +409,27 @@
               console.log('Song: ' + response.tracks[0].name + '\n' +
                 'Artist: '+ response.tracks[0].artists[0].name + 
                 '\nAlbum: ' + response.tracks[0].album.artists[0].name);
-              uri = response.tracks[0].uri;
-
-              var rec_info = 'Song: ' + response.tracks[0].name + '\n' +
-                'Artist: '+ response.tracks[0].artists[0].name + 
-                '\nAlbum: ' + response.tracks[0].album.artists[0].name;
-              addCurrRecsButton(rec_info, uri);
+              
+              // var rec_info = new Array();
+              $('#recs').empty();
+              var uriArr = new Array();
+              for (var i=0; i<5; i++) {
+                uriArr.push(response.tracks[i].uri);
+              }
+              for (var i=0; i<5; i++) {
+              var rec_info = 'Song: ' + response.tracks[i].name + '\n' +
+                'Artist: '+ response.tracks[i].artists[0].name + 
+                '\nAlbum: ' + response.tracks[i].album.artists[0].name;
+                //uri = response.tracks[i].uri;
+                addCurrRecsButton(rec_info, uriArr[i], i);
+                console.log('recs info ' + uriArr[i]);
+              }
 
               $('#login').hide();
               $('#loggedin').show();
             }
-          }));
-        });
-        promise.then(result => addToQueue(uri));
+          });
+        // promise.then(result => addToQueue(uri));
       }
       function addToQueue(uri){
         console.log('ATQ: '+uri)
@@ -438,12 +447,17 @@
         });
       }
 
-      function addCurrRecsButton (info, uri){
-        console.log('add button id: '+ uri);
+      function addCurrRecsButton (info, uri, i){
         $(document).ready(function() {
-          $('#recs').append('<button class="btn-styled" type="button" onclick="addToQueue('+uri+')">'+info+'</button>');
+          $('#recs').append('<button class="btn-styled" type="button" id="rec'+i+'">'+info+'</button>');
         });
+        console.log('add button id: '+ $('#rec'+i).prop('id'));
+        $('#rec'+i).on("click", function() {
+          addToQueue(uri);
+          $('#recs').empty()});
+        console.log('add button id: '+ $('#rec'+i).prop('id'));
       }
+      // onclick="addToQueue('+uri+')"
 
       function addPlaylistsButton (playlist, info, seed, index){
         $(document).ready(function() {
