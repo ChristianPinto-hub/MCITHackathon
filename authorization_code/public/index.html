@@ -32,6 +32,10 @@
           <button onclick="pause()">Pause</button>
           <button onclick="next()">Next</button>
           <button onclick="getSongInfo()">Update</button>
+        </div>
+        <br><br>
+        <div class="btn-group">
+          <h5>Get song recommendations from what's currently playing or from one of your playlists</h5>
           <button onclick="currRec()">Recommendation From Playing</button>
           <button onclick="playlistRec()">Recommendation From Playlist</button>
         </div>
@@ -39,10 +43,11 @@
         <div id="recs" class="btn-group">
         </div>
         <br><br>
-        <div id="playlists" class="btn-group">
+        <div id="playlists-desc"></div>
+        <div id="playlists" value='0' class="btn-group">
         </div>
         <br><br>
-        <div id="playlist-recs" class="btn-group">
+        <div id="playlist-recs" value='0' class="btn-group">
         </div>
         <br><br>
         <div id="user-profile">
@@ -81,34 +86,13 @@
         </div>
         <div class="media-body">
           <dl class="dl-horizontal">
-            <dt>Items</dt><dd>{{items}}</dd>
-            <dt>Genres</dt><dd>{{items.genres}}</dd>
             <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
             <dt>Id</dt><dd>{{id}}</dd>
             <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
           </dl>
         </div>
       </div>
     </script>
-
-<!--     <script id="top-tracks-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
-      <div class="media">
-        <div class="pull-left">
-          <img class="media-object" width="150" src="{{images.0.url}}" />
-        </div>
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt>Items</dt><dd>{{items}}</dd>
-            <dt>Genres</dt><dd>{{items.genres}}</dd>
-          </dl>
-        </div>
-      </div>
-    </script> -->
 
     <script id="oauth-template" type="text/x-handlebars-template">
       <h2>oAuth info</h2>
@@ -142,11 +126,6 @@
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
 
-        // var topTracksSource = document.getElementById('top-tracks-template').innerHTML,
-        //     topTracksTemplate = Handlebars.compile(topTracksSource),
-        //     topTracksPlaceholder = document.getElementById('top-tracks');
-
-
         var oauthSource = document.getElementById('oauth-template').innerHTML,
             oauthTemplate = Handlebars.compile(oauthSource),
             oauthPlaceholder = document.getElementById('oauth');
@@ -179,129 +158,6 @@
                   $('#loggedin').show();
                 }
             });
-
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me/player/currently-playing',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                  var playing = response;
-                  console.log(playing);
-                  // document.getElementById('currently-playing').innerHTML = '<p>Currently Playing</p> <p>Song: '+ playing.item.name;
-                  if (typeof playing !== "undefined") {
-                    document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + playing.item.artists[0].name;
-                    for (var i=1; i<playing.item.artists.length; i++) {
-                      document.getElementById('currently-playing').innerHTML += ', ' + playing.item.artists[i].name;
-                    }
-                    document.getElementById('currently-playing').innerHTML += '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
-                }
-
-                  $('#login').hide();
-                  $('#loggedin').show();
-                }
-            });
-
-            // $.ajax({
-            //     type: "GET",
-            //     url: 'https://api.spotify.com/v1/me/playlists',
-            //     headers: {
-            //       'Authorization': 'Bearer ' + access_token
-            //     },
-            //     dataType: "json",
-            //     success: function(response) {
-            //       var playlists = response;
-            //       //console.log(playlists);
-            //       var playlist_url = playlists.items[6].href;
-            //       //console.log(playlist_url);
-            //       $.ajax({
-            //         type: "GET",
-            //         url: playlist_url,
-            //         headers: {
-            //          'Authorization': 'Bearer ' + access_token
-            //        },
-            //         dataType: "json",
-            //         success: function(response) {
-            //           var playlist = response;
-
-
-            //           var seed_tracks = new Array(5);
-
-            //            //console.log(playlist);  
-            //           console.log(playlist.name);
-            //           document.getElementById('playlist').innerHTML = 'Playlist: ' + playlist.name;
-            //           //console.log(playlist.tracks)
-            //           document.getElementById('tracks-enumerated').innerHTML = 'First 10 Tracks: ' + '<br>';
-             
-
-                      // $.each(playlist.tracks.items, function(index, value) {
-                      //   var track_names = value.track.name;
-                      //   if (index < 5) {
-                      //     seed_tracks[index] = value.track.id;
-                      //   }
-                      //   if (index < 10) {
-                      //     document.getElementById('tracks').innerHTML += value.track.name + '<br>';
-                      //   }
-                      // }) 
-
-            //           $.ajax({
-            //             type: "GET",
-            //             url: 'https://api.spotify.com/v1/audio-features/' + playlist.tracks.items[0].track.id,
-            //             headers: {
-            //               'Authorization': 'Bearer ' + access_token
-            //             },
-            //             dataType: "json",
-            //             success: function(response) {
-            //               var audio_features  = response;
-            //               //console.log(audio_features);
-                          // $.ajax({
-                          //   type: "GET",
-                          //   url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + seed_tracks + '&limit=5',
-                          //   headers: {
-                          //     'Authorization': 'Bearer ' + access_token
-                          //   },
-                          //   dataType: "json",
-                            // success: function(response) {
-                            //   var recommendations = response;
-                            //   //console.log(recommendations);
-                            //   document.getElementById('recs-enumerated').innerHTML = 'Recommendations: <br>';
-                            //   $.each(recommendations.tracks, function(index, value) {
-                            //     document.getElementById('rec-tracks').innerHTML += value.name + '<br>';
-                            //   })
-
-                            // }
-                          // });
-            //             }
-            //           });
-
-
-            //         }
-            //       });
-                  
-            //     }
-            // });
-
-          //   $.ajax({
-          //       url: 'https://api.spotify.com/v1/me/top/artists',
-          //       headers: {
-          //         'Authorization': 'Bearer ' + access_token
-          //       },
-          //       success: function(response) {
-          //         // topTracksPlaceholder.innerHTML = topTracksTemplate(response);
-          //         console.log(response);
-          //         // var json = JSON.parse(response);
-          //         // var str = JSON.stringify(response);
-          //         // // alert(json.item);
-          //         document.getElementById("items").innerHTML = response.items[0].genres;
-          //         // document.getElementById("genres").innerHTML = json.items.genres;
-          //         // document.getElementById("all").innerHTML = str;
-          //         // console.log(response);
-
-
-          //         $('#login').hide();
-          //         $('#loggedin').show();
-          //       }
-          //   });
           } else {
               // render initial screen
               $('#login').show();
@@ -359,10 +215,22 @@
                 },
                 dataType: "json",
                 success: function(response) {
-                  var playlists = response;
-                  $.each(playlists.items, function(index, value) {
-                    getPlaylistName(value.href, index);
-                  }) 
+                  console.log('PL val: ', $('#playlists').attr('value'));
+                  if ($('#playlists').attr('value')==='0'){
+                    console.log('PL val hit: ')
+                    $('#playlists').attr('value', '1');
+                    console.log('PL val in: ', $('#playlists').attr('value'))
+                    var playlists = response;
+                    $.each(playlists.items, function(index, value) {
+                      getPlaylistName(value.href, index);
+                    })
+                    $('#playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
+                    console.log($('#playlists-desc').attr('id'));
+                  } else {
+                    $('#playlists').empty();
+                    $('#playlist-recs').empty();
+                    $('#playlists').attr('value', 0);
+                  }
                 }
         });
       }
@@ -385,7 +253,6 @@
               }
             })
             addPlaylistsButton(playlist.name, playlist, seed_tracks, index);
-            //console.log(playlist.name);
           }
         });
       }
@@ -464,7 +331,9 @@
           $('#playlists').append('<button class="btn-styled" type="button" id="playlist'+index+'">'+playlist+'</button>');
         });
         $('#playlist'+index).on("click", function() {
-          $('#playlist-recs').empty();
+          if (!$.isEmptyObject($('#playlist-recs'))){
+            $('#playlist-recs').empty();
+          }
           getPlaylistRecs(info, seed);
         });
       }
@@ -493,9 +362,9 @@
 
       function addPlayRecsButton(track, uri, index){
         $(document).ready(function() {
-          $('#playlist-recs').append('<button class="btn-styled" type="button" id="playlist-recs'+index+'">'+track+'</button>');
+          $('#playlist-recs').append('<button class="btn-styled" type="button" id="playlist-recs">'+track+'</button>');
         });
-        $('#playlist-recs'+index).on("click", function() {
+        $('#playlist-recs').on("click", function() {
           addToQueue(uri);
         });
       }
@@ -589,13 +458,12 @@
 
               document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + artists + '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
             }
-
-
             $('#login').hide();
             $('#loggedin').show();
           }
         });
       }
+      getSongInfo();
     </script>
   </body>
 </html>
