@@ -221,7 +221,6 @@
       function addPlaylistDescription(){
         if ($('#playlists').attr('value')==='0') {
           document.getElementById('playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
-          console.log('SMANG');
         } else {
           document.getElementById('playlists-desc').innerHTML ='';
         }   
@@ -343,7 +342,8 @@
         console.log('add button id: '+ $('#rec'+i).prop('id'));
         $('#rec'+i).on("click", function() {
           addToQueue(uri);
-          $('#recs').empty()});
+          $('#recs').empty();
+          document.getElementById('curr-recs-desc').innerHTML = ""});
         console.log('add button id: '+ $('#rec'+i).prop('id'));
       }
       // onclick="addToQueue('+uri+')"
