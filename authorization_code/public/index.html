@@ -33,9 +33,16 @@
           <button onclick="next()">Next</button>
           <button onclick="getSongInfo()">Update</button>
           <button onclick="currRec()">Recommendation From Playing</button>
+          <button onclick="playlistRec()">Recommendation From Playlist</button>
         </div>
         <br><br>
         <div id="recs" class="btn-group">
+        </div>
+        <br><br>
+        <div id="playlists" class="btn-group">
+        </div>
+        <br><br>
+        <div id="playlist-recs" class="btn-group">
         </div>
         <br><br>
         <div id="user-profile">
@@ -195,84 +202,84 @@
                 }
             });
 
-            $.ajax({
-                type: "GET",
-                url: 'https://api.spotify.com/v1/me/playlists',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                dataType: "json",
-                success: function(response) {
-                  var playlists = response;
-                  //console.log(playlists);
-                  var playlist_url = playlists.items[6].href;
-                  //console.log(playlist_url);
-                  $.ajax({
-                    type: "GET",
-                    url: playlist_url,
-                    headers: {
-                     'Authorization': 'Bearer ' + access_token
-                   },
-                    dataType: "json",
-                    success: function(response) {
-                      var playlist = response;
+            // $.ajax({
+            //     type: "GET",
+            //     url: 'https://api.spotify.com/v1/me/playlists',
+            //     headers: {
+            //       'Authorization': 'Bearer ' + access_token
+            //     },
+            //     dataType: "json",
+            //     success: function(response) {
+            //       var playlists = response;
+            //       //console.log(playlists);
+            //       var playlist_url = playlists.items[6].href;
+            //       //console.log(playlist_url);
+            //       $.ajax({
+            //         type: "GET",
+            //         url: playlist_url,
+            //         headers: {
+            //          'Authorization': 'Bearer ' + access_token
+            //        },
+            //         dataType: "json",
+            //         success: function(response) {
+            //           var playlist = response;
 
 
-                      var seed_tracks = new Array(5);
+            //           var seed_tracks = new Array(5);
 
-                       //console.log(playlist);  
-                      console.log(playlist.name);
-                      document.getElementById('playlist').innerHTML = 'Playlist: ' + playlist.name;
-                      //console.log(playlist.tracks)
-                      document.getElementById('tracks-enumerated').innerHTML = 'First 10 Tracks: ' + '<br>';
+            //            //console.log(playlist);  
+            //           console.log(playlist.name);
+            //           document.getElementById('playlist').innerHTML = 'Playlist: ' + playlist.name;
+            //           //console.log(playlist.tracks)
+            //           document.getElementById('tracks-enumerated').innerHTML = 'First 10 Tracks: ' + '<br>';
              
 
-                      $.each(playlist.tracks.items, function(index, value) {
-                        var track_names = value.track.name;
-                        if (index < 5) {
-                          seed_tracks[index] = value.track.id;
-                        }
-                        if (index < 10) {
-                          document.getElementById('tracks').innerHTML += value.track.name + '<br>';
-                        }
-                      }) 
+                      // $.each(playlist.tracks.items, function(index, value) {
+                      //   var track_names = value.track.name;
+                      //   if (index < 5) {
+                      //     seed_tracks[index] = value.track.id;
+                      //   }
+                      //   if (index < 10) {
+                      //     document.getElementById('tracks').innerHTML += value.track.name + '<br>';
+                      //   }
+                      // }) 
 
-                      $.ajax({
-                        type: "GET",
-                        url: 'https://api.spotify.com/v1/audio-features/' + playlist.tracks.items[0].track.id,
-                        headers: {
-                          'Authorization': 'Bearer ' + access_token
-                        },
-                        dataType: "json",
-                        success: function(response) {
-                          var audio_features  = response;
-                          //console.log(audio_features);
-                          $.ajax({
-                            type: "GET",
-                            url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + seed_tracks + '&limit=5',
-                            headers: {
-                              'Authorization': 'Bearer ' + access_token
-                            },
-                            dataType: "json",
-                            success: function(response) {
-                              var recommendations = response;
-                              //console.log(recommendations);
-                              document.getElementById('recs-enumerated').innerHTML = 'Recommendations: <br>';
-                              $.each(recommendations.tracks, function(index, value) {
-                                document.getElementById('rec-tracks').innerHTML += value.name + '<br>';
-                              })
+            //           $.ajax({
+            //             type: "GET",
+            //             url: 'https://api.spotify.com/v1/audio-features/' + playlist.tracks.items[0].track.id,
+            //             headers: {
+            //               'Authorization': 'Bearer ' + access_token
+            //             },
+            //             dataType: "json",
+            //             success: function(response) {
+            //               var audio_features  = response;
+            //               //console.log(audio_features);
+                          // $.ajax({
+                          //   type: "GET",
+                          //   url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + seed_tracks + '&limit=5',
+                          //   headers: {
+                          //     'Authorization': 'Bearer ' + access_token
+                          //   },
+                          //   dataType: "json",
+                            // success: function(response) {
+                            //   var recommendations = response;
+                            //   //console.log(recommendations);
+                            //   document.getElementById('recs-enumerated').innerHTML = 'Recommendations: <br>';
+                            //   $.each(recommendations.tracks, function(index, value) {
+                            //     document.getElementById('rec-tracks').innerHTML += value.name + '<br>';
+                            //   })
 
-                            }
-                          });
-                        }
-                      });
+                            // }
+                          // });
+            //             }
+            //           });
 
 
-                    }
-                  });
+            //         }
+            //       });
                   
-                }
-            });
+            //     }
+            // });
 
           //   $.ajax({
           //       url: 'https://api.spotify.com/v1/me/top/artists',
@@ -342,6 +349,47 @@
         })
       }
 
+      function playlistRec(){
+        var playists;
+        $.ajax({
+                type: "GET",
+                url: 'https://api.spotify.com/v1/me/playlists',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                dataType: "json",
+                success: function(response) {
+                  var playlists = response;
+                  $.each(playlists.items, function(index, value) {
+                    getPlaylistName(value.href, index);
+                  }) 
+                }
+        });
+      }
+
+      function getPlaylistName(url, index){
+        $.ajax({
+          type: "GET",
+          url: url,
+          headers: {
+            'Authorization': 'Bearer ' + access_token
+          },
+          dataType: "json",
+          success: function(response) {
+            var playlist = response;
+            var seed_tracks = new Array(5);
+            $.each(playlist.tracks.items, function(index, value) {
+              var track_names = value.track.name;
+              if (index < 5) {
+                seed_tracks[index] = value.track.id;
+              }
+            })
+            addPlaylistsButton(playlist.name, playlist, seed_tracks, index);
+            //console.log(playlist.name);
+          }
+        });
+      }
+
       function recsList(tracks){
         console.log('hit:' + tracks);
         var uri = '';
@@ -365,7 +413,7 @@
               var rec_info = 'Song: ' + response.tracks[0].name + '\n' +
                 'Artist: '+ response.tracks[0].artists[0].name + 
                 '\nAlbum: ' + response.tracks[0].album.artists[0].name;
-              addButton(rec_info, uri);
+              addCurrRecsButton(rec_info, uri);
 
               $('#login').hide();
               $('#loggedin').show();
@@ -390,10 +438,51 @@
         });
       }
 
-      function addButton (info, uri){
+      function addCurrRecsButton (info, uri){
         console.log('add button id: '+ uri);
         $(document).ready(function() {
           $('#recs').append('<button class="btn-styled" type="button" onclick="addToQueue('+uri+')">'+info+'</button>');
+        });
+      }
+
+      function addPlaylistsButton (playlist, info, seed, index){
+        $(document).ready(function() {
+          $('#playlists').append('<button class="btn-styled" type="button" id="playlist'+index+'">'+playlist+'</button>');
+        });
+        $('#playlist'+index).on("click", function() {
+          $('#playlist-recs').empty();
+          getPlaylistRecs(info, seed);
+        });
+      }
+
+      function getPlaylistRecs(info, seed){
+        //console.log(info);
+        $.ajax({
+            url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + seed + '&limit=5',
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+              var recommendations = response;
+              //console.log(recommendations);
+              //document.getElementById('recs-enumerated').innerHTML = 'Recommendations: <br>';
+              $.each(recommendations.tracks, function(index, value) {
+                //console.log(value.uri);
+                addPlayRecsButton(value.name, value.uri, index);
+                //document.getElementById('rec-tracks').innerHTML += value.name + '<br>';
+              })
+
+            }
+        });
+      }
+
+      function addPlayRecsButton(track, uri, index){
+        $(document).ready(function() {
+          $('#playlist-recs').append('<button class="btn-styled" type="button" id="playlist-recs'+index+'">'+track+'</button>');
+        });
+        $('#playlist-recs'+index).on("click", function() {
+          addToQueue(uri);
         });
       }
 
