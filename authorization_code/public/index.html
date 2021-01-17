@@ -19,11 +19,12 @@
   <body>
     <div class="container">
       <div id="login">
-        <h1>This is an example of the Authorization Code flow</h1>
+        <h1>Welcome to Spoti59X</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
       <div id="loggedin">
         <br><br>
+        <h1>Spoti59X</h1>
         <div id="currently-playing">
         </div>
         <div id = "album-image">
@@ -43,13 +44,15 @@
           <button onclick="playlistRec()">Recommendation From Playlist</button>
         </div>
         <br><br>
+        <h5 id="curr-recs-desc"></h5>
         <div id="recs" class="btn-group">
         </div>
         <br><br>
-        <div id="playlists-desc"></div>
+        <h5 id="playlists-desc"></h5>
         <div id="playlists" value='0' class="btn-group">
         </div>
         <br><br>
+        <h5 id="playlists-recs-desc"></h5>
         <div id="playlist-recs" value='0' class="btn-group">
         </div>
         <br><br>
@@ -215,7 +218,17 @@
         })
       }
 
+      function addPlaylistDescription(){
+        if ($('#playlists').attr('value')==='0') {
+          document.getElementById('playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
+          console.log('SMANG');
+        } else {
+          document.getElementById('playlists-desc').innerHTML ='';
+        }   
+      }
+
       function playlistRec(){
+        addPlaylistDescription();
         var playists;
         $.ajax({
                 type: "GET",
@@ -234,12 +247,12 @@
                     $.each(playlists.items, function(index, value) {
                       getPlaylistName(value.href, index);
                     })
-                    $('#playlists-desc').innerHTML = "Select a playlist to generate recommendations from";
                     console.log($('#playlists-desc').attr('id'));
                   } else {
+                    document.getElementById('playlists-recs-desc').innerHTML = "";
                     $('#playlists').empty();
                     $('#playlist-recs').empty();
-                    $('#playlists').attr('value', 0);
+                    $('#playlists').attr('value', '0');
                   }
                 }
         });
@@ -270,8 +283,6 @@
       function recsList(tracks){
         console.log('hit:' + tracks);
         var uri = '';
-        // let promise = new Promise(function(resolve, reject) {
-          //resolve(
           $.ajax({
             url: 'https://api.spotify.com/' + 
               'v1/recommendations?limit=5&seed_tracks='+ tracks,
@@ -287,7 +298,6 @@
                 'Artist: '+ response.tracks[0].artists[0].name + 
                 '\nAlbum: ' + response.tracks[0].album.artists[0].name);
               
-              // var rec_info = new Array();
               $('#recs').empty();
               var uriArr = new Array();
               for (var i=0; i<5; i++) {
@@ -306,7 +316,6 @@
               $('#loggedin').show();
             }
           });
-        // promise.then(result => addToQueue(uri));
       }
       function addToQueue(uri){
         console.log('ATQ: '+uri)
@@ -325,6 +334,8 @@
       }
 
       function addCurrRecsButton (info, uri, i){
+        document.getElementById('curr-recs-desc').innerHTML = "Select a song to add to queue";
+        console.log('addCurrRecsButton')
         $(document).ready(function() {
           $('#recs').append('<button class="btn-styled" type="button" id="rec'+i+'">'+info+'</button>');
         });
@@ -369,10 +380,11 @@
       }
 
       function addPlayRecsButton(track, uri, index){
+        document.getElementById('playlists-recs-desc').innerHTML = "Select a song to add to queue";
         $(document).ready(function() {
-          $('#playlist-recs').append('<button class="btn-styled" type="button" id="playlist-recs">'+track+'</button>');
+          $('#playlist-recs').append('<button class="btn-styled" type="button" id="playlist-recs'+index+'">'+track+'</button>');
         });
-        $('#playlist-recs').on("click", function() {
+        $('#playlist-recs'+index).on("click", function() {
           addToQueue(uri);
         });
       }
