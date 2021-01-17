@@ -23,6 +23,18 @@
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
       <div id="loggedin">
+        <br><br>
+        <div id="currently-playing">
+        </div>
+        <div class="btn-group">
+          <button onclick="previous()">Previous</button>
+          <button onclick="play()">Play</button>
+          <button onclick="pause()">Pause</button>
+          <button onclick="next()">Next</button>
+          <button onclick="getSongInfo()">Update</button>
+          <button onclick="recs()">Recommendation</button>
+        </div>
+        <br><br>
         <div id="user-profile">
         </div>
         <div id="top-tracks">
@@ -32,10 +44,11 @@
         <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
         <div id="playlist">
         </div>
-        <div id="tracks-enumerated">
-        </div>
         <div id="tracks">
         </div>
+        <div id="tracks-enumerated">
+        </div>
+        <br><br>
       </div>
     </div>
 
@@ -76,16 +89,6 @@
       </div>
     </script> -->
 
-      <div class="media">
-        <div class="media-body">
-          <dl class="dl-horizontal">
-            <dt id="items">Items</dt>
-            <dt id="genres">Genres</dt>
-            <dt id="all">All</dt>
-          </dl>
-        </div>
-      </div>
-
     <script id="oauth-template" type="text/x-handlebars-template">
       <h2>oAuth info</h2>
       <dl class="dl-horizontal">
@@ -96,7 +99,8 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <script>
+    <script> 
+      var access_token
       (function() {
 
         /**
@@ -128,9 +132,9 @@
 
         var params = getHashParams();
 
-        var access_token = params.access_token,
-            refresh_token = params.refresh_token,
+        var refresh_token = params.refresh_token,
             error = params.error;
+        access_token = params.access_token
 
         if (error) {
           alert('There was an error during the authentication');
@@ -149,6 +153,27 @@
                 },
                 success: function(response) {
                   userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+
+                  $('#login').hide();
+                  $('#loggedin').show();
+                }
+            });
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me/player/currently-playing',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(response) {
+                  var playing = response;
+                  console.log(playing);
+                  // document.getElementById('currently-playing').innerHTML = '<p>Currently Playing</p> <p>Song: '+ playing.item.name;
+                  document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + playing.item.artists[0].name;
+                  for (var i=1; i<playing.item.artists.length; i++) {
+                    document.getElementById('currently-playing').innerHTML += ', ' + playing.item.artists[i].name;
+                  }
+                  document.getElementById('currently-playing').innerHTML += '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
+
 
                   $('#login').hide();
                   $('#loggedin').show();
@@ -194,27 +219,27 @@
                 }
             });
 
-            $.ajax({
-                url: 'https://api.spotify.com/v1/me/top/artists',
-                headers: {
-                  'Authorization': 'Bearer ' + access_token
-                },
-                success: function(response) {
-                  // topTracksPlaceholder.innerHTML = topTracksTemplate(response);
-                  console.log(response);
-                  // var json = JSON.parse(response);
-                  // var str = JSON.stringify(response);
-                  // // alert(json.item);
-                  document.getElementById("items").innerHTML = response.items[0].genres;
-                  // document.getElementById("genres").innerHTML = json.items.genres;
-                  // document.getElementById("all").innerHTML = str;
-                  // console.log(response);
+          //   $.ajax({
+          //       url: 'https://api.spotify.com/v1/me/top/artists',
+          //       headers: {
+          //         'Authorization': 'Bearer ' + access_token
+          //       },
+          //       success: function(response) {
+          //         // topTracksPlaceholder.innerHTML = topTracksTemplate(response);
+          //         console.log(response);
+          //         // var json = JSON.parse(response);
+          //         // var str = JSON.stringify(response);
+          //         // // alert(json.item);
+          //         document.getElementById("items").innerHTML = response.items[0].genres;
+          //         // document.getElementById("genres").innerHTML = json.items.genres;
+          //         // document.getElementById("all").innerHTML = str;
+          //         // console.log(response);
 
 
-                  $('#login').hide();
-                  $('#loggedin').show();
-                }
-            });
+          //         $('#login').hide();
+          //         $('#loggedin').show();
+          //       }
+          //   });
           } else {
               // render initial screen
               $('#login').show();
@@ -238,6 +263,142 @@
           }, false);
         }
       })();
+      function recs(){
+        var uri = '';
+        let promise = new Promise(function(resolve, reject) {
+          resolve($.ajax({
+            url: 'https://api.spotify.com/' + 
+              'v1/recommendations?limit=1&seed_tracks=5HLes17mwCwKt81mi0Tk35',
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+              for (var i=0; i<response.length; i++){
+                console.log('recs' +i+': ' + response[i]);
+              }
+              console.log('Song: ' + response.tracks[0].name + '\n' +
+                'Artist: '+ response.tracks[0].artists[0].name + 
+                '\nAlbum: ' + response.tracks[0].album.artists[0].name);
+
+              uri = response.tracks[0].uri;
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+          }));
+        });
+        promise.then(result => addToQueue(uri));
+      }
+      function addToQueue(uri){
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/queue?uri=' + uri,
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+        });
+      }
+
+
+      function play(){
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/play',
+            method: 'PUT',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+        });
+      }
+      function pause(){
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/pause',
+            method: 'PUT',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+        });
+      }
+      function nextHelper(){
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/next',
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+        })
+      }
+      function next() {
+        let promise = new Promise(function(resolve, reject) {
+          resolve(nextHelper());
+        });
+        promise.then(
+            result => setTimeout(() => console.log(getSongInfo()), 750));
+      }
+      function previousHelper(){
+        $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/previous',
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + access_token
+            },
+            success: function(response) {
+
+              $('#login').hide();
+              $('#loggedin').show();
+            }
+        });
+      }
+      function previous() {
+        let promise = new Promise(function(resolve, reject) {
+          resolve(previousHelper());
+        });
+        promise.then(
+            result => setTimeout(() => console.log(getSongInfo()), 750));
+      }
+      function getSongInfo(){
+        $.ajax({
+          url: 'https://api.spotify.com/v1/me/player/currently-playing',
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + access_token
+          },
+          success: function(response) {
+            var playing = response;
+            console.log(playing);
+            // document.getElementById('currently-playing').innerHTML = '<p>Currently Playing</p> <p>Song: '+ playing.item.name;
+            var artists = playing.item.artists[0].name;
+            for (var i=1; i<playing.item.artists.length; i++) {
+              artists += ', ' + playing.item.artists[i].name;
+            }
+
+            document.getElementById('currently-playing').innerHTML = '<p><h2>Currently Playing</h2></p> <p><b>Song:</b> ' + playing.item.name + '</p> <p><b>Artist:</b> ' + artists + '</p> <p><b>Album:</b> '+ playing.item.album.name + '</p>';
+
+
+            $('#login').hide();
+            $('#loggedin').show();
+          }
+        });
+      }
     </script>
   </body>
 </html>
