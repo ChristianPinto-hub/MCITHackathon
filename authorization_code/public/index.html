@@ -201,7 +201,7 @@
                 success: function(response) {
                   var playlists = response;
                   //console.log(playlists);
-                  var playlist_url = playlists.items[0].href;
+                  var playlist_url = playlists.items[6].href;
                   //console.log(playlist_url);
                   $.ajax({
                     type: "GET",
@@ -214,19 +214,23 @@
                       var playlist = response;
 
 
-                      var track_list = new Array(3);
+                      var seed_tracks = new Array(5);
 
                        //console.log(playlist);  
                       console.log(playlist.name);
                       document.getElementById('playlist').innerHTML = 'Playlist: ' + playlist.name;
                       //console.log(playlist.tracks)
-                      document.getElementById('tracks-enumerated').innerHTML = 'Tracks: ' + '<br>';
+                      document.getElementById('tracks-enumerated').innerHTML = 'First 10 Tracks: ' + '<br>';
              
 
                       $.each(playlist.tracks.items, function(index, value) {
                         var track_names = value.track.name;
-                        track_list[index] = value.track.id;
-                        document.getElementById('tracks').innerHTML += value.track.name + '<br>';
+                        if (index < 5) {
+                          seed_tracks[index] = value.track.id;
+                        }
+                        if (index < 10) {
+                          document.getElementById('tracks').innerHTML += value.track.name + '<br>';
+                        }
                       }) 
 
                       $.ajax({
@@ -241,7 +245,7 @@
                           //console.log(audio_features);
                           $.ajax({
                             type: "GET",
-                            url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + track_list,
+                            url: 'https://api.spotify.com/v1/recommendations?seed_tracks=' + seed_tracks + '&limit=5',
                             headers: {
                               'Authorization': 'Bearer ' + access_token
                             },
