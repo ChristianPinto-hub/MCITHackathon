@@ -346,7 +346,8 @@
         console.log('hit:' + tracks);
         var uri = '';
         let promise = new Promise(function(resolve, reject) {
-          resolve($.ajax({
+          //resolve(
+          $.ajax({
             url: 'https://api.spotify.com/' + 
               'v1/recommendations?limit=5&seed_tracks='+ tracks,
             method: 'GET',
@@ -360,19 +361,28 @@
               console.log('Song: ' + response.tracks[0].name + '\n' +
                 'Artist: '+ response.tracks[0].artists[0].name + 
                 '\nAlbum: ' + response.tracks[0].album.artists[0].name);
-              uri = response.tracks[0].uri;
+              
 
-              var rec_info = 'Song: ' + response.tracks[0].name + '\n' +
-                'Artist: '+ response.tracks[0].artists[0].name + 
-                '\nAlbum: ' + response.tracks[0].album.artists[0].name;
-              addButton(rec_info, uri);
+              // var rec_info = new Array();
+              var uriArr = new Array();
+              for (var i=0; i<5; i++) {
+                uriArr.push(response.tracks[i].uri);
+              }
+              for (var i=0; i<5; i++) {
+              var rec_info = 'Song: ' + response.tracks[i].name + '\n' +
+                'Artist: '+ response.tracks[i].artists[0].name + 
+                '\nAlbum: ' + response.tracks[i].album.artists[0].name;
+                //uri = response.tracks[i].uri;
+                addButton(rec_info, uriArr[i], i);
+                console.log('recs info ' + uriArr[i]);
+              }
 
               $('#login').hide();
               $('#loggedin').show();
             }
-          }));
+          });
         });
-        promise.then(result => addToQueue(uri));
+        // promise.then(result => addToQueue(uri));
       }
       function addToQueue(uri){
         console.log('ATQ: '+uri)
@@ -390,13 +400,14 @@
         });
       }
 
-      function addButton (info, uri){
-        console.log('add button id: '+ uri);
+      function addButton (info, uri, i){
         $(document).ready(function() {
-          $('#recs').empty();
-          $('#recs').append('<button class="btn-styled" type="button" id="uri">'+info+'</button>');
+          $('#recs').append('<button class="btn-styled" type="button" id="rec'+i+'">'+info+'</button>');
         });
-        $(document).on("click", $('#recs'), () => addToQueue(uri));
+        $('#rec'+i).on("click", function() {
+          addToQueue(uri);
+          $('#recs').empty()});
+        console.log('add button id: '+ $('#rec'+i).prop('id'));
       }
       // onclick="addToQueue('+uri+')"
 
