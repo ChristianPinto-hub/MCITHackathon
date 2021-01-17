@@ -402,12 +402,12 @@
 
       function addButton (info, uri, i){
         $(document).ready(function() {
-          $('#recs').append('<button class="btn-styled" type="button" id="rec'+i+'">'+info+'</button>');
+          $('#recs').append('<button class="btn-styled" type="button" id="'+uri+'">'+info+'</button>');
         });
-        $('#rec'+i).on("click", function() {
+        $('#'+uri).on("click", function() {
           addToQueue(uri);
           $('#recs').empty()});
-        console.log('add button id: '+ $('#rec'+i).prop('id'));
+        console.log('add button id: '+ $('#'+uri).prop('id'));
       }
       // onclick="addToQueue('+uri+')"
 
