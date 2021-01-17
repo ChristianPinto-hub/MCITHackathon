@@ -345,7 +345,7 @@
       function recsList(tracks){
         console.log('hit:' + tracks);
         var uri = '';
-        let promise = new Promise(function(resolve, reject) {
+        // let promise = new Promise(function(resolve, reject) {
           //resolve(
           $.ajax({
             url: 'https://api.spotify.com/' + 
@@ -381,7 +381,6 @@
               $('#loggedin').show();
             }
           });
-        });
         // promise.then(result => addToQueue(uri));
       }
       function addToQueue(uri){
